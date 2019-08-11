@@ -102,7 +102,7 @@ def test_attrs_used_by_method_computation():
 
     init_kws = dict(a=100)
     assert attrs_used_by_method_computation(B.greet, init_kws) == {'a', 'x', 'y'}
-    # assert attrs_used_by_method_computation(B.z, init_kws) == {'x', 'y'}  # fails (property z has no __name__)
+    assert attrs_used_by_method_computation(B.z, init_kws) == {'x', 'y'}
     assert attrs_used_by_method_computation(
         B.accessing_property_method, init_kws) == {'b', 'z', 'x', 'y'}  # z or not z?
     assert attrs_used_by_method_computation(B.with_f_string, init_kws) == {'greeting', 'x'}

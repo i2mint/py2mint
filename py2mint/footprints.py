@@ -33,6 +33,8 @@ def get_class_that_defined_method(method):
 
 
 def cls_and_method_name_of_method(method):
+    if isinstance(method, property):
+        return get_class_that_defined_method(method.fget), method.fget.__name__
     return get_class_that_defined_method(method), method.__name__
 
 
@@ -194,11 +196,16 @@ def attrs_used_by_method_computation(cls_method, init_kwargs=None, method_kwargs
         dict(method_class.__dict__, **Tracker.__dict__)
     )(**init_kwargs)
     tracker.attrs_to_ignore = [func for func in dir(tracker) if callable(getattr(tracker, func))]
+
     if hasattr(tracker, method_name):
-        candidate_method = getattr(tracker, method_name)
         # Now, we want to track attributes.
         with start_tracking(tracker):
-            candidate_method(**method_kwargs)
+            if isinstance(cls_method, property):
+                candidate_method = cls_method.fget
+                candidate_method(tracker)
+            else:
+                candidate_method = getattr(tracker, method_name)
+                candidate_method(**method_kwargs)
 
         return _process_duplicates(tracker.attr_used, remove_duplicates=remove_duplicates)
 
